@@ -3,27 +3,74 @@ from selenium.webdriver.common.by import By
 import pandas as pd
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver import ActionChains
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.keys import Keys
 import time
+import math
 
-driver_path = 'chromedriver-win64/chromedriver.exe'  # Substitua pelo caminho do seu WebDriver
+driver_path = 'chromedriver-win64/chromedriver.exe' 
 url = 'https://www.svicente.com.br/'
 
 service = Service(executable_path=driver_path)
 
 driver = webdriver.Chrome(service=service)
 
-# driver.get(url)
-
-# time.sleep(5)  # Ajuste o tempo conforme necessário
-# botao =driver.find_element(By.XPATH,'//*[@id="vueApp"]/header/div/div[7]/div/div[1]/div[1]/div/div[8]/div[1]')
-# ActionChains(driver).move_to_element(botao).pause(1).context_click(botao)
-
 departamentos=['Mercearia', 'Bebidas-', 'Bebidas-Alcoólicas', 'Hortifruti-1', 'Carnes.-Aves-E-Peixes', 
 'Frios-E-Laticínios', 'Congelados', 'Higiene-E-Beleza', 'Limpeza', 'Biscoitos-E-Salgadinhos', 
 'Doces-E-Sobremesas', 'Padaria', 'Saudáveis-E-Ôrganicos', 'Bazar-E-Utilidades']
 
+wait=WebDriverWait(driver, timeout=10)
+
+def get_SaoVito():
+    driver.get(url)
+    driver.maximize_window()
+    link = driver.find_element(By.PARTIAL_LINK_TEXT,'Nova Odessa')
+  
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'})", link)  
+    wait.until(EC.element_to_be_clickable((link)))
+    link.send_keys(Keys.ENTER)
+    cep = driver.find_element(By.XPATH, '//*[@id="new-switch-store-modal"]/div[2]/div/form/div[1]/input')
+    numero = driver.find_element(By.XPATH, '//*[@id="new-switch-store-modal"]/div[2]/div/form/div[2]/input')
+    enviar = driver.find_element(By.XPATH, '//*[@id="new-switch-store-modal"]/div[2]/div/form/button')
+    
+    ActionChains(driver)\
+        .send_keys_to_element(cep, "13478779")\
+        .perform()
+    ActionChains(driver)\
+        .send_keys_to_element(numero, "155")\
+        .perform()
+    enviar.click()
+    retirar = wait.until(EC.visibility_of_element_located((By.XPATH, '//*[@id="new-switch-store-modal"]/div[2]/div/div[2]/ul/li[1]/p' )))
+    retirar.click()
+    sao_vito= wait.until(EC.visibility_of_element_located((By.XPATH, '//*[@id="001"]' )))
+    sao_vito.click()
+    time.sleep(5)
+
+get_SaoVito()
+
+
+def listaCompleta():
+    # driver.get(url+"Mercearia")
+    # driver.maximize_window()
+    wait=WebDriverWait(driver, timeout=10)
+    s = wait.until(EC.visibility_of_element_located((By.XPATH, '//*[@id="maincontent"]/div[2]/div/div/div/div[1]/div[2]/p')))
+
+    total = int(''.join(filter(str.isdigit, s.text)))
+    wait=WebDriverWait(driver, timeout=10)
+    for i in range(int(total/20)):
+        # botao = driver.find_element(By.XPATH, '//*[@id="maincontent"]/div[2]/div/div/div/div[2]/div/div[2]/div/button') 
+        botao = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="maincontent"]/div[2]/div/div/div/div[2]/div/div[2]/div/button')))
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'})", botao)  
+        botao.click()
+        time.sleep(6)
+
+    print(total)
+
+
 for departamento in departamentos:
     driver.get(url+departamento)
+    listaCompleta()
     titulos = driver.find_elements(By.CSS_SELECTOR, 'span.productCard__title')
     precos = driver.find_elements(By.CSS_SELECTOR, 'span.productPrice__price:not(.lineThrough)')
     
@@ -33,8 +80,6 @@ for departamento in departamentos:
     df = pd.DataFrame(dados)
     print(df)
 
-# Salva o DataFrame em um arquivo CSV (opcional)
-# df.to_csv('titulos_e_precos.csv', index=False)
+df.to_csv('titulos_e_precos.csv', index=False)
 
-# Fecha o navegador
 driver.quit()
