@@ -1,6 +1,6 @@
 # 🛒 Mercado
 
-Projeto de WebSrapping de produtos de supermercados para fins de análises futuras.
+Projeto de WebScraping de produtos de supermercados para fins de análises futuras.
 
 ---
 
@@ -39,6 +39,6 @@ Sinta-se à vontade para abrir **issues** com sugestões ou relatar problemas, o
 
 [![GitHub](https://img.shields.io/badge/GitHub-%40felipevaz06-181717?logo=github)](https://github.com/felipevaz06)
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-Conecte--se-blue?logo=linkedin)](https://www.linkedin.com/in/felipevazferreira/) 
-[![Gmail](https://img.shields.io/badge/Email-seuemail@gmail.com-D14836?logo=gmail&logoColor=white)](mailto:felipevazferreira68@gmail.com)
+[![Gmail](https://img.shields.io/badge/Email-felipevazferreira68@gmail.com-D14836?logo=gmail&logoColor=white)](mailto:felipevazferreira68@gmail.com)
 
 ---
