@@ -1,6 +1,7 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 import pandas as pd
+from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver import ActionChains
 from selenium.webdriver.support.ui import WebDriverWait
@@ -17,8 +18,9 @@ service = Service(executable_path=driver_path)
 driver = webdriver.Chrome(service=service)
 
 departamentos=['Ovos', 'Carnes.-Aves-E-Peixes', 
-'Frios-E-Laticínios', 'Empanados', 'Limpeza', 
-'Doces-E-Sobremesas']
+'Frios-E-Laticínios', 'Empanados', 'Limpeza', 'Creme-De-Leite-1', 'Leite-Condensado-1', 
+"Cafés.-Chás-E-Achocolatados","Cestas-Alimentícias-1", "Conservas-E-Enlatados", "Cozinha-Do-Mundo-1", 
+"Massas", "Mercearia-Básica", "Molhos-Para-Lanches", "Temperos--E--Molhos-Diversos"]
 
 wait=WebDriverWait(driver, timeout=10)
 
@@ -51,37 +53,35 @@ get_SaoVito()
 
 
 def listaCompleta():
-    # driver.get(url+"Hortifruti-1")
-    # driver.maximize_window()
     wait=WebDriverWait(driver, timeout=10)
     s = wait.until(EC.visibility_of_element_located((By.XPATH, '//*[@id="maincontent"]/div[2]/div/div/div/div[1]/div[2]/p')))
-
     total = int(''.join(filter(str.isdigit, s.text)))
     final_url = math.ceil(total/20) *20
     return str(final_url)
-    # for i in range(int(total/20)):
-    #     # botao = driver.find_element(By.XPATH, '//*[@id="maincontent"]/div[2]/div/div/div/div[2]/div/div[2]/div/button') 
-    #     botao = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="maincontent"]/div[2]/div/div/div/div[2]/div/div[2]/div/button')))
-    #     driver.execute_script("arguments[0].scrollIntoView({block: 'center'})", botao)  
-    #     botao.click()
-    #     time.sleep(6)
+
 
     print(total)
 dados = []
+
 for departamento in departamentos:
     driver.get(url+departamento)
     driver.get(url+departamento+"?sz="+listaCompleta())
-    
-    titulos = driver.find_elements(By.CSS_SELECTOR, 'span.productCard__title')
-    precos = driver.find_elements(By.CSS_SELECTOR, 'span.productPrice__price:not(.lineThrough)')
+    container = driver.find_elements(By.CSS_SELECTOR, 'div.productCard__container')
+    titulos=[]
+    precos=[]
+    for cont in container:
+        titulos.append(cont.find_element(By.CSS_SELECTOR, 'span.productCard__title').text)
+        try:
+            precos.append(cont.find_element(By.CSS_SELECTOR, 'span.productPrice__price:not(.lineThrough)').text)
+        except NoSuchElementException:
+            precos.append(cont.find_element(By.CSS_SELECTOR, "div.promotionTagText__container").text)
 
     for titulo, preco in zip(titulos, precos):
-        dados.append({'Título': titulo.text, 'Preço': preco.text, 'Departamento': departamento})
+        dados.append({'Título': titulo, 'Preço': preco, 'Departamento': departamento})
+    df = pd.DataFrame(dados)
+    print(df)
 
-   
-df = pd.DataFrame(dados)
-print(df)
 
-df.to_csv('titulos_e_precos-teste.csv', index=False)
+df.to_csv('titulos_e_precos-27-03.csv', index=False)
 
 driver.quit()
