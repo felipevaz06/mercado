@@ -1,33 +1,17 @@
-from selenium import webdriver
 from selenium.webdriver.common.by import By
-import pandas as pd
-from selenium.webdriver.chrome.service import Service
 from selenium.webdriver import ActionChains
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.common.keys import Keys
-import time
-import math
+import pandas as pd
 
-driver_path = 'chromedriver-win64/chromedriver.exe' 
-url = 'https://www.superpaguemenos.com.br/'
-
-service = Service(executable_path=driver_path)
-
-driver = webdriver.Chrome(service=service)
-
-driver.get(url)
-driver.maximize_window()
-wait=WebDriverWait(driver, timeout=10)
-link = driver.find_element(By.XPATH, '//*[@id="main-wrapper"]/header/div[3]/div[1]/div[1]/span/span/span')
-driver.execute_script("arguments[0].scrollIntoView({block: 'center'})", link)  
-wait.until(EC.element_to_be_clickable((link)))
-link.click()
-
-def get_Links():
+def get_Links(driver):
+    wait=WebDriverWait(driver, timeout=10)
+    link = driver.find_element(By.XPATH, '//*[@id="main-wrapper"]/header/div[3]/div[1]/div[1]/span/span/span')
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'})", link)  
+    wait.until(EC.element_to_be_clickable((link)))
+    link.click()
     links=[]
-    wait = WebDriverWait(driver, 10)
     lista_categorias = driver.find_elements(By.CSS_SELECTOR, "li.child.level-0")
     lista_textos = [element.text for element in lista_categorias]
     print(lista_textos)
@@ -54,16 +38,10 @@ def get_Links():
     df_links.to_csv("results/paguemenos/lista_links.csv", index=False)
 
 
-
-def get_Produtos():
+def extrair_produtosPM(driver):
     links = pd.read_csv("results/paguemenos/lista_links.csv", header=None)[0].tolist()
     links = [link for link in links if link.startswith("http")]
-    marcas=[]
-    nomes=[]
-    precos=[]
     dados=[]
-    dados_prod={}
-    categorias=[]
     for site in links:
         driver.get(site)
         try:
@@ -84,11 +62,10 @@ def get_Produtos():
                 "Marca": produto.find_element(By.CSS_SELECTOR, "span.font-size-11.text-primary.font-weight-bold").text,
                 "Categoria": driver.find_element(By.CSS_SELECTOR, "h1.h3").text
             })
-    df_produtos = pd.DataFrame(dados)
-    print(df_produtos)
-    df_produtos_sem_duplicados = df_produtos.drop_duplicates(subset="Nome")
+    
+    return dados
+    # df_produtos = pd.DataFrame(dados)
+    # print(df_produtos)
+    # df_produtos_sem_duplicados = df_produtos.drop_duplicates(subset="Nome")
 
-    df_produtos_sem_duplicados.to_csv("results/paguemenos/lista_produtos.csv", index=False)
-get_Produtos()
-driver.quit()
-time.sleep(3)
+    # df_produtos_sem_duplicados.to_csv("results/paguemenos/lista_produtos.csv", index=False)
