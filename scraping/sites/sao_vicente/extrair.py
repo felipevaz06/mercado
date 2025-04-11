@@ -64,7 +64,7 @@ def extrair_produtosSV(driver):
                 precos.append(cont.find_element(By.CSS_SELECTOR, "div.promotionTagText__container").text)
 
         for titulo, preco in zip(titulos, precos):
-            dados.append({'Título': titulo, 'Preço': preco, 'Departamento': departamento})
+            dados.append({'Nome': titulo, 'Preço': preco, 'Departamento': departamento})
         df = pd.DataFrame(dados)
         print(df)
     return dados

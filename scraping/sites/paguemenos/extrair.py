@@ -63,13 +63,16 @@ def extrair_produtosPM(driver):
                     preco_prod=produto.find_element(By.CSS_SELECTOR,"p.sale-price").text
                 except NoSuchElementException:
                     preco_prod = 0
-                dados.append({
-                    "Nome": produto.find_element(By.CSS_SELECTOR, "h2.title").text,
-                    "Preço": preco_prod,
-                    "Marca": produto.find_element(By.CSS_SELECTOR, "span.font-size-11.text-primary.font-weight-bold").text,
-                    "Categoria": driver.find_element(By.CSS_SELECTOR, "h1.h3").text
-                })
-                print(dados)
+                try:
+                    dados.append({
+                        "Nome": produto.find_element(By.CSS_SELECTOR, "h2.title").text,
+                        "Preço": preco_prod,
+                        "Marca": produto.find_element(By.CSS_SELECTOR, "span.font-size-11.text-primary.font-weight-bold").text,
+                        "Categoria": driver.find_element(By.CSS_SELECTOR, "h1.h3").text
+                    })
+        
+                except NoSuchElementException:
+                    continue
             prox_pag= pag_atual+1
             prox_pag=str(prox_pag)
             driver.get(site+"?p="+prox_pag)
@@ -80,3 +83,36 @@ def extrair_produtosPM(driver):
     # df_produtos_sem_duplicados = df_produtos.drop_duplicates(subset="Nome")
 
     # df_produtos_sem_duplicados.to_csv("results/paguemenos/lista_produtos.csv", index=False)
+
+def teste(driver):
+    dados=[]
+    site="https://www.superpaguemenos.com.br/acougue/frango/"
+    prox_site="https://www.superpaguemenos.com.br/congelados/petiscos-e-empanados/"
+    driver.get("https://www.superpaguemenos.com.br/acougue/frango/")
+    try:
+        paginas = driver.find_element(By.XPATH, '//*[@id="main-wrapper"]/div/div[3]/div/div[2]/div/ul')
+        qtnde_paginas = paginas.find_elements(By.CSS_SELECTOR, "li.number.page-item, li.number.page-item.active")
+    except NoSuchElementException:
+        qtnde_paginas=[]
+    for pag_atual, item in enumerate(qtnde_paginas or [None], start=1):
+        lista_produtos=driver.find_elements(By.CSS_SELECTOR, "div.desc.position-relative")
+        for i, produto in enumerate(lista_produtos):
+            try:
+                preco_prod=produto.find_element(By.CSS_SELECTOR,"p.sale-price").text
+            except NoSuchElementException:
+                preco_prod = 0
+            try:
+                dados.append({
+                    "Nome": produto.find_element(By.CSS_SELECTOR, "h2.title").text,
+                    "Preço": preco_prod,
+                    "Marca": produto.find_element(By.CSS_SELECTOR, "span.font-size-11.text-primary.font-weight-bold").text,
+                    "Categoria": driver.find_element(By.CSS_SELECTOR, "h1.h3").text
+                })
+            except NoSuchElementException:
+                continue
+        prox_pag= pag_atual+1
+        prox_pag=str(prox_pag)
+        driver.get(site+"?p="+prox_pag)
+    
+    driver.get(prox_site)
+    return dados
