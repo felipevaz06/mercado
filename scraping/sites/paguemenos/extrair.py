@@ -78,11 +78,7 @@ def extrair_produtosPM(driver):
             driver.get(site+"?p="+prox_pag)
     
     return dados
-    # df_produtos = pd.DataFrame(dados)
-    # print(df_produtos)
-    # df_produtos_sem_duplicados = df_produtos.drop_duplicates(subset="Nome")
 
-    # df_produtos_sem_duplicados.to_csv("results/paguemenos/lista_produtos.csv", index=False)
 
 def teste(driver):
     dados=[]
