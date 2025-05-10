@@ -9,6 +9,8 @@ import math
 import time
 import pandas as pd
 import re
+from datetime import datetime
+data_str = datetime.now().strftime("%Y/%m/%d %H:%M")
 
 departamentos=['Ovos', 'Carnes.-Aves-E-Peixes', 
 'Frios-E-Laticínios', 'Empanados', 'Limpeza', 'Creme-De-Leite-1', 'Leite-Condensado-1', 
@@ -25,7 +27,7 @@ def get_Links(driver):
         
     lista_subsubcategorias = menu.find_elements(By.CLASS_NAME, "menudesktop-subsubcategories")
     for subsub in lista_subsubcategorias:
-        lista_a=subsub.find_elements(By.TAG_NAME, "a")
+        lista_a=subsub.find_elements(By.XPATH, "./a[not(ancestor::p)]")
         for a in lista_a:
             links.append(a.get_attribute("href"))
             
@@ -83,11 +85,12 @@ def extrair_produtosSV(driver):
             try:
                 preco_prod=cont.find_element(By.CSS_SELECTOR, 'span.productPrice__price:not(.lineThrough)').text
             except NoSuchElementException:
-                preco_prod=cont.find_element(By.CSS_SELECTOR, "div.promotionTagText__container").text
+                preco_prod=None
             dados.append({
                 "Nome": cont.find_element(By.CSS_SELECTOR, 'span.productCard__title').text,
                 "Preço": preco_prod,
-                "Categoria": driver.find_element(By.CSS_SELECTOR, "div.breadCrumb__content").text
+                "Categoria": driver.find_element(By.CSS_SELECTOR, "div.breadCrumb__content").text,
+                "Data": data_str
             })
         df = pd.DataFrame(dados)
         print(df)

@@ -4,6 +4,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.support import expected_conditions as EC
 import pandas as pd
+from datetime import datetime
 
 def get_Links(driver):
     wait=WebDriverWait(driver, timeout=10)
@@ -62,13 +63,14 @@ def extrair_produtosPM(driver):
                 try:
                     preco_prod=produto.find_element(By.CSS_SELECTOR,"p.sale-price").text
                 except NoSuchElementException:
-                    preco_prod = 0
+                    preco_prod = None
                 try:
                     dados.append({
                         "Nome": produto.find_element(By.CSS_SELECTOR, "h2.title").text,
                         "Preço": preco_prod,
                         "Marca": produto.find_element(By.CSS_SELECTOR, "span.font-size-11.text-primary.font-weight-bold").text,
-                        "Categoria": driver.find_element(By.CSS_SELECTOR, "h1.h3").text
+                        "Categoria": driver.find_element(By.CSS_SELECTOR, "h1.h3").text,
+                        
                     })
         
                 except NoSuchElementException:

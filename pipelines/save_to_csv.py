@@ -6,7 +6,7 @@ def save_to_csv(dados, site_nome: str):
         print(f" Nenhum dado para salvar para o site '{site_nome}'")
         return
 
-    data_str = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    data_str = datetime.now().strftime("%d-%m-%Y")
     caminho_arquivo = "results/"+f"{site_nome}/"+ f"{site_nome}_{data_str}.csv"
     df = pd.DataFrame(dados)
     df_produtos_sem_duplicados = df.drop_duplicates(subset="Nome")
