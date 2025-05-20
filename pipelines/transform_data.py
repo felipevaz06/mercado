@@ -4,10 +4,11 @@ import re
 import json
 from collections import defaultdict
 import spacy
+from datetime import datetime
 
 nlp = spacy.load("pt_core_news_sm")
 
-paguemenos_base = '../results/paguemenos/paguemenos_01-05-2025.csv'
+paguemenos_base = 'results/paguemenos/paguemenos_01-05-2025.csv'
 df_marca = pd.read_csv(paguemenos_base, sep=',')
 print(df_marca.columns)
 marcas = df_marca['Marca'].dropna().unique().tolist()
@@ -16,7 +17,7 @@ marcas = df_marca['Marca'].dropna().unique().tolist()
 
 def extrair_data(nome_arquivo):
     match = re.search(r"\d{2}-\d{2}-\d{4}", nome_arquivo)
-    return match.group(0) if match else None
+    return datetime.strptime(match.group(0), "%d-%m-%Y") if match else None
 
 def extrair_peso(texto):
     match = re.search(r'(\d+[.,]?\d*)\s?(kg|g|l|ml)', texto.lower())
@@ -39,24 +40,30 @@ def extrair_nome_composto(texto):
 
     if not palavras:
         return ''
-    if len(palavras)>1 and palavras[1]=="de":
+    if len(palavras)>1 and (palavras[1]=="de" or palavras[1]=="em" or palavras[1]=="com" or palavras[1]=="para"):
         return f"{palavras[0]} {palavras[1]} {palavras[2]}"
     if len(palavras) == 1:
         return palavras[0]
 
-    return f"{palavras[0]} {palavras[-1]}"
+    return f"{palavras[0]} {palavras[1]}"
 
-def encontrar_marca(nome_produto, lista_marcas):
+def encontrar_marca(nome_produto):
     palavras = set(re.findall(r'\b\w+\b', nome_produto.lower()))
-    for marca in lista_marcas:
+    for marca in marcas:
         if marca.lower() in palavras:
             return marca
     return None
 
-paguemenos = '../results/paguemenos/'
-saovicente = '../results/saovicente/'
+def string_to_float(valor):
+    if isinstance(valor, str):
+        valor = valor.replace('R$', '').replace('.', '').replace(',', '.').strip()
+    try:
+        return float(valor)
+    except ValueError:
+        return None
 
-def transform_data(mercados, marcas):
+
+def transform_data(mercados):
     produtos = defaultdict(lambda: {
         "nome": "",
         "marca": "",
@@ -71,9 +78,9 @@ def transform_data(mercados, marcas):
         print(f"Processando arquivos em {mercado}: {arquivos}")
         for arquivo in arquivos:
             if arquivo.startswith("paguemenos"):
-                supermercado = "paguemenos"
+                supermercado = "Pague Menos"
             elif arquivo.startswith("saovicente"):
-                supermercado = "saovicente"
+                supermercado = "São Vicente"
             else:
                 continue  # ignora outros arquivos
 
@@ -86,7 +93,7 @@ def transform_data(mercados, marcas):
 
             for _, row in df.iterrows():
                 nome = row.get("Nome")
-                preco = row.get("Preço")
+                preco = string_to_float(row.get("Preço")) 
                 if pd.isna(nome) or pd.isna(preco):
                     continue
 
@@ -94,7 +101,7 @@ def transform_data(mercados, marcas):
                 produto = produtos[nome]
 
                 if not produto["marca"]:
-                    produto["marca"] = row.get("Marca") or encontrar_marca(nome, marcas)
+                    produto["marca"] = row.get("Marca") or encontrar_marca(nome)
                 if not produto["categoria"]:
                     produto["categoria"] = str(row.get("Categoria", "")).strip().split('\n')[-1]
                 if not produto["peso"]:
@@ -118,10 +125,7 @@ def transform_data(mercados, marcas):
         }
         documentos.append(doc)
 
-    with open("produtos_geral.json", "w", encoding="utf-8") as f:
-        json.dump(documentos, f, ensure_ascii=False, indent=2)
 
     print(f"{len(documentos)} produtos salvos.")
+    return documentos
 
-
-transform_data([saovicente, paguemenos], marcas)

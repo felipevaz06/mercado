@@ -2,3 +2,4 @@ mercado-venv
 chromedriver-win64
 __pycache__
 .env
+results
