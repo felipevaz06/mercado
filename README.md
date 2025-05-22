@@ -1,20 +1,20 @@
 # 🛒 Mercado
 
-Projeto de WebScraping de produtos de supermercados para fins de análises futuras.
+Projeto de Pipeline ETL com WebScraping de produtos de supermercados para fins de análises futuras.
 
 ---
 
 ## 🚧 Status do Projeto
 
-🚀 Em desenvolvimento
+🚀 Finalizado
 
 ---
 
 ## 📋 Funcionalidades planejadas
 
 - [x] Extração de produtos e preços
-- [ ] Transformação dos dados
-- [ ] Carregamento dos dados
+- [x] Transformação dos dados
+- [x] Carregamento dos dados
 - [ ] Análises Futuras
 
 
@@ -25,6 +25,7 @@ Projeto de WebScraping de produtos de supermercados para fins de análises futur
 ![Python](https://img.shields.io/badge/Python-3776AB?style=flat&logo=python&logoColor=white)
 ![Selenium](https://img.shields.io/badge/Selenium-43B02A?style=flat&logo=selenium&logoColor=white)
 ![VSCode](https://img.shields.io/badge/Editor-VSCode-blue?logo=visualstudiocode)
+![MongoDB](https://img.shields.io/badge/MongoDB-4EA94B?style=for-the-badge&logo=mongodb&logoColor=white)
 
 ---
 
